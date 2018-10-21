@@ -1,0 +1,25 @@
+version: '2'
+services:
+  db-master:
+    build:
+      context: "./"
+      dockerfile: "Dockerfile-master"
+    ports:
+      - "13306:3306"
+    volumes:
+      - mysql-master-data:/var/lib/mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+  db-slave:
+    build:
+      context: "./"
+      dockerfile: "Dockerfile-slave"
+    ports:
+      - '23306:3306'
+    volumes:
+      - mysql-slave-data:/var/lib/mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+volumes:
+  mysql-master-data:
+  mysql-slave-data:
