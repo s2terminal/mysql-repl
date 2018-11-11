@@ -1,2 +1,4 @@
 [mysqld]
 server-id=2
+log-bin
+log_slave_updates
