@@ -26,14 +26,15 @@ $ docker exec -it mysqlrepl_db-slave_1 /bin/sh
 ```bash
 $ mysql -u root -h 127.0.0.1 -P 13306 -e 'FLUSH TABLES WITH READ LOCK'
 $ mysqldump --all-databases -u root -h 127.0.0.1 -P 13306 --master-data --single-transaction --order-by-primary -r backup.sql
-$ mysql -u root -h 127.0.0.1 -P 13306 -e 'SHOW MASTER STATUS\G' # take a memo
+$ MASTER_LOG_FILE=`mysql -u root -h 127.0.0.1 -P 13306 -e 'SHOW MASTER STATUS\G' | grep File | awk '{ print $2 }'`
+$ MASTER_LOG_POSITION=`mysql -u root -h 127.0.0.1 -P 13306 -e 'SHOW MASTER STATUS\G' | grep Position | awk '{ print $2 }'`
 $ mysql -u root -h 127.0.0.1 -P 13306 -e 'UNLOCK TABLES'
 ```
 
 ```bash
 $ mysql -u root -h 127.0.0.1 -P 23306 -e 'STOP SLAVE'
 $ mysql -u root -h 127.0.0.1 -P 23306 -e 'SOURCE backup.sql'
-$ mysql -u root -h 127.0.0.1 -P 23306 -e "CHANGE MASTER TO MASTER_HOST='db-master', MASTER_PORT=3306, MASTER_USER='root', MASTER_PASSWORD='', MASTER_LOG_FILE='<MasterLogFile>', MASTER_LOG_POS=<MasterLogPosition>;"
+$ mysql -u root -h 127.0.0.1 -P 23306 -e "CHANGE MASTER TO MASTER_HOST='db-master', MASTER_PORT=3306, MASTER_USER='root', MASTER_PASSWORD='', MASTER_LOG_FILE='${MASTER_LOG_FILE}', MASTER_LOG_POS=${MASTER_LOG_POSITION};"
 $ mysql -u root -h 127.0.0.1 -P 23306 -e 'START SLAVE'
 $ mysql -u root -h 127.0.0.1 -P 23306 -e 'SHOW SLAVE STATUS\G'
 ```
